@@ -62,6 +62,16 @@ Filters
 
 These damn little filters can be freakin useful xD
 
+creating a filter is also pretty easy :) ( Damn i think i use the word easy and simple to much >.< )
+
+	easyCache::filter( '<type>', function( $data ) {
+		
+		// do something with $data
+	
+		return $data;
+	});
+
+
 #### Example for usage with CSSMin
 
 	easyCache::filter( 'css', function( $css ) {
