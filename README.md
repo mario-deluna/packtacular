@@ -13,13 +13,13 @@ How to Use
 
 Lets say we have the following folder structure 
 
- | index.html
- | cache
- - | css
- | css
- - | some.css
- - | ofmy.css
- - | cssfiles.css
+	| index.html
+	| cache
+	- | css
+	| css
+	- | some.css
+	- | ofmy.css
+	- | cssfiles.css
  
 Then create a new php file wich schould return the packed content. For example stylesheet.php 
 
