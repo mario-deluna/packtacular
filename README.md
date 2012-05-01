@@ -14,6 +14,8 @@ How to Use
 Lets say we have the following folder structure 
 
 	| index.html
+	| lib
+	- | easyCache.php
 	| cache
 	- | css
 	| css
@@ -25,7 +27,7 @@ Then create a new php file wich schould return the packed content. For example s
 
 In that file first of all include the easyCache class. But maybe if want to use the Cachetastic for only 1 folder i would recommend to just copy paste the easyCache class at the bottom of your script :)
 
-	require "../lib/easyCache.php";
+	require "lib/easyCache.php";
 
 and the followig line will print out the packed content
 
@@ -46,6 +48,40 @@ was that not easy?
 		'js/myscript.js',
 	), 'cache/js/' );
 	
+#### Example with a fixed cache file
+
+	easyCache::css( 'css/', 'cache/css/mycachefile.css' );
+	
 You can also just return the output and do the awesome stuff you want with it :)
 	
-	easyCache::css( 'css/', 'cache/css/', true );
+	$output = easyCache::css( 'css/', 'cache/css/', true );
+	
+
+Filters
+-------
+
+These damn little filters can be freakin useful xD
+
+#### Example for usage with CSSMin
+
+	easyCache::filter( 'css', function( $css ) {
+	
+		/*
+		 * example cssmin implementation 
+		 */
+		$filters = array (
+			"ImportImports"                 => false,
+			"RemoveComments"                => true, 
+			"RemoveEmptyRulesets"           => true,
+			"RemoveEmptyAtBlocks"           => true,
+			"ConvertLevel3AtKeyframes"      => true,
+			"ConvertLevel3Properties"       => true,
+			"Variables"                     => true,
+			"RemoveLastDelarationSemiColon" => true
+		);
+	
+		// require CSS min
+		require_once "../lib/cssmin-v3.0.1-minified.php";
+	
+		return CssMin::minify( $css, $filters );
+	});
