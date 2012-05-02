@@ -2,24 +2,24 @@
 /**
  * Le easy cache
  *
- * easyCache is maybe the wrong name its more a packer ^.^
+ * Packtacular is maybe the wrong name its more a packer ^.^
  *
  * You need PHP5.3 to use this!
  *
- * @package 		EasyCache
+ * @package 		Packtacular
  * @author     		Mario Döring <mariodoering@me.com>
  * @version 		0.1
  * @copyright 		2012 Mario Döring
  *
  */
 header("Content-type: text/css; charset: UTF-8"); 
-require "../lib/easyCache.php";
+require "../lib/packtacular.php";
 
 /*
  * registering filters
- * easyCache::filter( <type>, <filter> );
+ * Packtacular::filter( <type>, <filter> );
  */
-easyCache::filter( 'css', function( $css ) {
+Packtacular::filter( 'css', function( $css ) {
 	
 	/*
 	 * example cssmin implementation 
@@ -43,13 +43,13 @@ easyCache::filter( 'css', function( $css ) {
  
 /*
  * example with a folder
- * easyCache::<filetype>( <dir>|<files_array>, <target_dir>/<target_file> );
+ * Packtacular::<filetype>( <dir>|<files_array>, <target_dir>/<target_file> );
  *
- * i hope this is not confusing, if you set a folder as source easyCache is going to
+ * i hope this is not confusing, if you set a folder as source Packtacular is going to
  * search in that dir for all files of that type. If you pass an array its only going to use the passed files.
  *
- * if you set an directory as target easyCache is going to create a new file on every change of your source files
+ * if you set an directory as target Packtacular is going to create a new file on every change of your source files
  * if you set a file as target its always writing in that file.
  */
-easyCache::css( __DIR__.'/', '../cache/css/' );
+Packtacular::css( __DIR__.'/', '../cache/css/' );
 

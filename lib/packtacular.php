@@ -2,17 +2,17 @@
 /**
  * Le easy cache
  *
- * easyCache is maybe the wrong name its more a packer ^.^
+ * Packtacular is maybe the wrong name its more a packer ^.^
  *
  * You need PHP5.3 to use this!
  *
- * @package 		EasyCache
+ * @package 		Packtacular
  * @author     		Mario Döring <mariodoering@me.com>
  * @version 		0.1
  * @copyright 		2012 Mario Döring
  *
  */
-class easyCache {
+class Packtacular {
 	
 	/*
 	 * settings
@@ -84,17 +84,14 @@ class easyCache {
 			elseif ( substr( $source, -1 ) == '/' ) {
 				$source = static::files_of_type( $type, $source );
 			}
-			elseif ( $source == '(this)' || $source == NULL || $source == 'this' || $source == 'here' || $source == 'dir' ) {
-				$source = static::files_of_type( $type, '' );
-			}
 			else {
-				throw new easyCacheException( "Could not match your source :(" );
+				throw new packtacularException( "Could not match your source :(" );
 			}
 		}
 		
 		// check if empty 
 		if ( empty( $source ) ) {
-			throw new easyCacheException( "No source files found!" );
+			throw new packtacularException( "No source files found!" );
 		}
 		
 		// get last modified timestamp
@@ -110,7 +107,7 @@ class easyCache {
 		// check if the cache is valid
 		if ( !file_exists( $target ) ||  $last_change > $buff_target_time ) {
 			if ( !static::write_cache( $source, $target, $type ) ) {
-				throw new easyCacheException( "Writing the file to <{$target}> faild!" );
+				throw new packtacularException( "Writing the file to <{$target}> faild!" );
 			}
 		}
 		
@@ -144,7 +141,7 @@ class easyCache {
 	protected static function files_of_type( $type, $dir ) {
 		
 		if ( !file_exists( $dir ) ) {
-			throw new easyCacheException( "The source directory does not exists!" );
+			throw new packtacularException( "The source directory does not exists!" );
 		}
 	
 		$dir_iterator = new RecursiveDirectoryIterator( $dir );
@@ -205,4 +202,4 @@ class easyCache {
 }
 
 // Exception
-class easyCacheException extends Exception {}
+class packtacularException extends Exception {}
