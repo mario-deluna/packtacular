@@ -35,6 +35,8 @@ and the followig line will print out all content of your css files in the "css/"
 
 was that not easy?
 
+** Important dont forget to give the cache folder write permissions! **
+
 	Packtacular::<type>( '<source>', '<target>' );
 	
  - type defines for what files Packtacular should search.
