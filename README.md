@@ -25,17 +25,17 @@ Lets say we have the following folder structure
  
 Then create a new php file wich schould return the packed content. For example stylesheet.php 
 
-In that file first of all include the packtacular class. But maybe if want to use the Packtacular for only 1 folder i would recommend to just copy paste the packtacular class at the bottom of your script :)
+In that file first of all include the packtacular class. But maybe ifyou want to use the Packtacular for only 1 folder i would recommend to just copy paste the packtacular class at the bottom of your script :)
 
 	require "lib/packtacular.php";
 
-and the followig line will print out the packed content
+and the followig line will print out all content of your css files in the "css/" folder
 
-	packtacular::css( 'css/', 'cache/css/' );
+	Packtacular::css( 'css/', 'cache/css/' );
 
 was that not easy?
 
-	packtacular::<type>( '<source>', '<target>' );
+	Packtacular::<type>( '<source>', '<target>' );
 	
  - type defines for what files Packtacular should search.
  - source, you can set here an array with files or a path to folder. If you set the path to a folder Packtacular is going to search trough that folder recursive for files of the selected type. A folder path should always end with "/"!
@@ -43,18 +43,18 @@ was that not easy?
  
 #### Example with a fixed array
 
-	packtacular::js( array(
+	Packtacular::js( array(
 		'js/jquery.js',
 		'js/myscript.js',
 	), 'cache/js/' );
 	
 #### Example with a fixed cache file
 
-	packtacular::css( 'css/', 'cache/css/mycachefile.css' );
+	Packtacular::css( 'css/', 'cache/css/mycachefile.css' );
 	
 You can also just return the output and do the awesome stuff you want with it :)
 	
-	$output = packtacular::css( 'css/', 'cache/css/', true );
+	$output = Packtacular::css( 'css/', 'cache/css/', true );
 	
 
 Filters
@@ -64,7 +64,7 @@ These damn little filters can be freakin useful xD
 
 creating a filter is also pretty easy :) ( Damn i think i use the word easy and simple to much >.< )
 
-	packtacular::filter( '<type>', function( $data ) {
+	Packtacular::filter( '<type>', function( $data ) {
 		
 		// do something with $data
 	
@@ -74,7 +74,7 @@ creating a filter is also pretty easy :) ( Damn i think i use the word easy and 
 
 #### Example for usage with CSSMin
 
-	packtacular::filter( 'css', function( $css ) {
+	Packtacular::filter( 'css', function( $css ) {
 	
 		/*
 		 * example cssmin implementation 
