@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Packtacular by mario-deluna</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/mario-deluna/packtacular">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/mario-deluna/packtacular/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/mario-deluna/packtacular/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Packtacular</h1>
+          <p>Packtacular is a really easy way to pack and minify css, js, less ect. files.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/mario-deluna">mario-deluna</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>Packtacular</h1>
+
+<p>Cache is maybe the wrong word, its more a packer, but a pretty cool packer^^</p>
+
+<p>Packtacular packs css files, javascript files, less files or whatever you want together and creates a new packed file that updateds each time you make any changes on your source files. You can easy apply filters to for example minify your css or compile your less code. </p>
+
+<p>The use Packtacular you need php5.3</p>
+
+<h2>How to Use</h2>
+
+<p>Lets say we have the following folder structure </p>
+
+<pre><code>| index.html
+| lib
+- | packtacular.php
+| cache
+- | css
+| css
+- | some.css
+- | ofmy.css
+- | cssfiles.css
+</code></pre>
+
+<p>Then create a new php file wich schould return the packed content. For example stylesheet.php </p>
+
+<p>In that file first of all include the packtacular class. But maybe ifyou want to use the Packtacular for only 1 folder i would recommend to just copy paste the packtacular class at the bottom of your script :)</p>
+
+<pre><code>require "lib/packtacular.php";
+</code></pre>
+
+<p>and the followig line will print out all content of your css files in the "css/" folder</p>
+
+<pre><code>Packtacular::css( 'css/', 'cache/css/' );
+</code></pre>
+
+<p>was that not easy?</p>
+
+<p>** Important dont forget to give the cache folder write permissions! **</p>
+
+<pre><code>Packtacular::&lt;type&gt;( '&lt;source&gt;', '&lt;target&gt;' );
+</code></pre>
+
+<ul>
+<li>type defines for what files Packtacular should search.</li>
+<li>source, you can set here an array with files or a path to folder. If you set the path to a folder Packtacular is going to search trough that folder recursive for files of the selected type. A folder path should always end with "/"!</li>
+<li>target defines where to store the cache files, if you set here a path to a folder its going to create new file each time you make changes on your source files.</li>
+</ul><h4>Example with a fixed array</h4>
+
+<pre><code>Packtacular::js( array(
+    'js/jquery.js',
+    'js/myscript.js',
+), 'cache/js/' );
+</code></pre>
+
+<h4>Example with a fixed cache file</h4>
+
+<pre><code>Packtacular::css( 'css/', 'cache/css/mycachefile.css' );
+</code></pre>
+
+<p>You can also just return the output and do the awesome stuff you want with it :)</p>
+
+<pre><code>$output = Packtacular::css( 'css/', 'cache/css/', true );
+</code></pre>
+
+<h2>Filters</h2>
+
+<p>These damn little filters can be freakin useful xD</p>
+
+<p>creating a filter is also pretty easy :) ( Damn i think i use the word easy and simple to much &gt;.&lt; )</p>
+
+<pre><code>Packtacular::filter( '&lt;type&gt;', function( $data ) {
+
+    // do something with $data
+
+    return $data;
+});
+</code></pre>
+
+<h4>Example for usage with CSSMin</h4>
+
+<pre><code>Packtacular::filter( 'css', function( $css ) {
+
+    /*
+     * example cssmin implementation 
+     */
+    $filters = array (
+        "ImportImports"                 =&gt; false,
+        "RemoveComments"                =&gt; true, 
+        "RemoveEmptyRulesets"           =&gt; true,
+        "RemoveEmptyAtBlocks"           =&gt; true,
+        "ConvertLevel3AtKeyframes"      =&gt; true,
+        "ConvertLevel3Properties"       =&gt; true,
+        "Variables"                     =&gt; true,
+        "RemoveLastDelarationSemiColon" =&gt; true
+    );
+
+    // require CSS min
+    require_once "../lib/cssmin-v3.0.1-minified.php";
+
+    return CssMin::minify( $css, $filters );
+});
+</code></pre>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-32481268-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
