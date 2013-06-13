@@ -7,9 +7,9 @@
  * You need PHP5.3 to use this!
  *
  * @package 		Packtacular
- * @author     		Mario Döring <mariodoering@me.com>
+ * @author     		Mario DÃ¶ring <mariodoering@me.com>
  * @version 		0.1
- * @copyright 		2012 Mario Döring
+ * @copyright 		2013 Mario DÃ¶ring
  *
  */
 class Packtacular {
@@ -22,7 +22,7 @@ class Packtacular {
 		/*
 		 * dont recache if the last modification is smaller then the cache + time_buffer
 		 */
-		'time_buffer' => 3,
+		'time_buffer' => 0,
 		
 		/*
 		 * Cache file prefix
@@ -85,13 +85,13 @@ class Packtacular {
 				$source = static::files_of_type( $type, $source );
 			}
 			else {
-				throw new packtacularException( "Could not match your source :(" );
+				throw new packtacularException( "Packtacular - Could not match your source :(" );
 			}
 		}
 		
 		// check if empty 
 		if ( empty( $source ) ) {
-			throw new packtacularException( "No source files found!" );
+			throw new packtacularException( "Packtacular - No source files found!" );
 		}
 		
 		// get last modified timestamp
@@ -107,7 +107,7 @@ class Packtacular {
 		// check if the cache is valid
 		if ( !file_exists( $target ) ||  $last_change > $buff_target_time ) {
 			if ( !static::write_cache( $source, $target, $type ) ) {
-				throw new packtacularException( "Writing the file to <{$target}> faild!" );
+				throw new packtacularException( "Packtacular - Writing the file to <{$target}> faild!" );
 			}
 		}
 		
@@ -141,7 +141,7 @@ class Packtacular {
 	protected static function files_of_type( $type, $dir ) {
 		
 		if ( !file_exists( $dir ) ) {
-			throw new packtacularException( "The source directory does not exists!" );
+			throw new packtacularException( "Packtacular - The source directory does not exists!" );
 		}
 	
 		$dir_iterator = new RecursiveDirectoryIterator( $dir );
