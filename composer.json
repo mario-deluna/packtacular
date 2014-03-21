@@ -1,0 +1,24 @@
+{
+	"name": "clancats/packtacular",
+	"type": "library",
+	"description": "Packtacular is a simple and fast asset packer and compressor.",
+	"version": "2.0.0",
+	"keywords": [ "asset", "packer", "cache" ],
+	"homepage": "https://github.com/mario-deluna/packtacular",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mario Döring",
+			"email": "mario@clan-cats.com",
+			"homepage": "https://clancats.ch",
+			"role": "Developer"
+		}
+	],
+	"autoload": {
+		"psr-0": {
+			"Packtacular": "src/"
+		}
+	},
+	"require": {
+	}
+}
