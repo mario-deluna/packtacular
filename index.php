@@ -7,6 +7,6 @@
 require __DIR__.'/vendor/autoload.php';
 
 // set packtacular public directory
-Packtacular::storage( __DIR__.'/assets/' );
+Packtacular::storage( __DIR__.'/' );
 
-Packtacular::css( 'css/', 'stylesheet.css' );
+var_dump( (string) Packtacular::css( 'assets/css/', 'assets/c/stylesheet_:time.css' ) );

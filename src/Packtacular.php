@@ -30,10 +30,16 @@ class Packtacular
 	 * 
 	 * @param string 	$type		What should be filtered: css, js, less etc.
 	 * @param mixed		$callback	A closure or array can be passed
+	 * @param bool		$singleton	When true the filter gets applied for each file instead of the entire pack.
 	 */
-	public static function filter( $type, $callback ) 
+	public static function filter( $type, $callback, $singleton = false ) 
 	{
-		static::$filters[$type][] = $callback;
+		if ( !is_callable( $callback ) )
+		{
+			throw new Packtacular_Exception( "Packtacular - invalid callback for filter given." );
+		}
+		
+		static::$filters[$type][(int) $singleton][] = $callback;
 	}
 
 	/**
@@ -68,65 +74,7 @@ class Packtacular
 	 */
 	public static function __callStatic( $type, $arguments ) 
 	{
-		$source = $arguments[0];
-		$target = $arguments[1];
-
-		/*
-		 * get source files
-		 */
-		if ( !is_array( $source ) ) {
-
-			if ( strpos( $source, '.'.$type ) !== false ) {
-				$source = array( $source );
-			}
-			elseif ( substr( $source, -1 ) == '/' ) {
-				$source = static::files_of_type( $type, $source );
-			}
-			else {
-				throw new packtacularException( "Packtacular - Could not match your source :(" );
-			}
-		}
-
-		// check if empty 
-		if ( empty( $source ) ) {
-			throw new packtacularException( "Packtacular - No source files found!" );
-		}
-
-		// get last modified timestamp
-		$last_change = static::last_change( $source );
-
-		// check if target is a directory
-		if ( substr( $target, -1 ) == '/' ) {
-			$target = $target.static::$settings['file_prefix'].$last_change.static::$settings['file_suffix'];
-		}
-
-		$buff_target_time = filemtime( $target ) + static::$settings['time_buffer'];
-
-		// check if the cache is valid
-		if ( !file_exists( $target ) ||  $last_change > $buff_target_time ) {
-			if ( !static::write_cache( $source, $target, $type ) ) {
-				throw new packtacularException( "Packtacular - Writing the file to <{$target}> faild!" );
-			}
-		}
-
-		// return the contetns 
-		if ( $return ) {
-			return file_put_contents( $target );
-		}
-
-		/*
-		 * set header to the given type
-		 */
-		if ( static::$settings['auto_header'] ) {
-			header("Content-type: text/$type; charset: UTF-8"); 
-		}
-
-		/*
-		 * output that stuff 
-		 */
-		ob_clean();
-		flush();
-		readfile( $target );
+		return new static( $type, $arguments[0], $arguments[1] );
 	} 
 	
 	/**
@@ -134,7 +82,7 @@ class Packtacular
 	 *
 	 * @var array
 	 */
-	protected $sources = null;
+	protected $sources = array();
 	
 	/**
 	 * The cache target 
@@ -149,6 +97,13 @@ class Packtacular
 	 * @var string
 	 */
 	protected $type = null;
+	
+	/**
+	 * The last modified timestamp of the sources
+	 *
+	 * @var string
+	 */
+	protected $last_change = null;
 	
 	/**
 	 * Packtacular constructor
@@ -169,100 +124,209 @@ class Packtacular
 		{
 			$this->sources = $source;
 		}
-		else 
+		elseif ( is_string( $source ) )
 		{
 			// but if our source is a string and not an array
 			// we assume that we got an directory passed and get all 
 			// matching files from that directory.
-			if ( !is_dir( $source ) ) 
+			if ( !$this->is_absolute_path( $source ) )
 			{
-				throw new Packtacular_Exception( "Packtacular - The source direcotry is not readable." );
+				$soruce = static::$storage.$source;
 			}
 			
-			// lets check if we go
-			$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::SELF_FIRST );
+			$this->directory( $soruce );
+		}
+		else 
+		{
+			throw new Packtacular_Exception( "Packtacular - The secound argument should contain valid sources." );
+		}
+	}
+	
+	/**
+	 * Add files from a directory to the sources
+	 *
+	 * @param string			$dir
+	 * @return void
+	 */
+	public function directory( $dir )
+	{	
+		if ( !is_dir( $dir ) ) 
+		{
+			throw new Packtacular_Exception( "Packtacular - The source direcotry '".$dir."' is not readable." );
+		}
+		
+		// we need to reset the last change timestamp because we might add new files
+		$this->reset_last_change();
+		
+		$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::SELF_FIRST );
+		
+		foreach ( $iterator as $file ) 
+		{
+			$file = $file->getPathname();
 			
-			$this->sources = array();
-			
-			foreach ( $iterator as $file ) 
+			if ( substr( $file, ( strlen( '.'.$this->type ) * -1 ) ) === '.'.$this->type ) 
 			{
-				$file = $file->getPathname();
-				
-				if ( substr( $file, ( strlen( '.'.$type ) * -1 ) ) === '.'.$type ) 
-				{
-					$this->sources[] = $file;
-				}
+				$this->sources[] = $file;
 			}
 		}
 	}
 	
 	/**
-	 * get all files in dir
-	 *
-	 * @param string 	$type
-	 * @param string	$dir
-	 * @return array
-	 */
-	protected static function files_of_type( $type, $dir ) {
-
-		if ( !file_exists( $dir ) ) 
-		{
-			throw new packtacularException( "Packtacular - The source directory does not exists!" );
-		}
-
-		$dir_iterator = new RecursiveDirectoryIterator( $dir );
-		$iterator = new RecursiveIteratorIterator( $dir_iterator, RecursiveIteratorIterator::SELF_FIRST );
-
-		$files = array();
-
-		foreach ( $iterator as $file ) {
-
-			$file = $file->getPathname();
-
-			if ( strpos( $file, '.'.$type ) !== false  ) {
-				$files[] = $file;
-			}
-		}
-
-		return $files;
-	}
-
-	/**
-	 * get the last changed date of an array of files
+	 * Add files from an array to the packer instance
 	 *
 	 * @param array		$files
+	 * @return void
+	 */
+	public function files( array $files )
+	{
+		// we need to reset the last change timestamp because we might add new files
+		$this->reset_last_change();
+		
+		foreach( $files as $file )
+		{
+			if ( !$this->is_absolute_path( $source ) )
+			{
+				$file = static::$storage.$file;
+			}
+			
+			$this->sources[] = $file;
+		}
+	}
+	
+	/**
+	 * Return the cache file path and compile the sources if a change happend
+	 *
+	 * @param bool		$absolute
+	 * @return string
+	 */ 
+	public function get( $absolute = false )
+	{
+		$target = $target_path = str_replace( ':time', $this->last_change(), $this->target );
+		
+		if ( !$this->is_absolute_path( $target_path ) )
+		{
+			$target_path = static::$storage.$target_path;
+		}
+		
+		// When the target file does not exist or the last change of the target is
+		// smaller then the last change of the sources we need to rebuild
+		if ( !file_exists( $target_path ) || filemtime( $target_path ) < $this->last_change() )
+		{
+			$this->build( $target_path );
+		}
+		
+		return $target;
+	}
+	
+	/**
+	 * Php's to string magic so we can get the path directly
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->get();
+	}
+	
+	/**
+	 * Re build the cache into a file
+	 *
+	 * @param string		$target
+	 * @return bool
+	 */
+	public function build( $target )
+	{
+		// because we never now and every developer is a 
+		// bit paranoid we check for dublicate files
+		$this->sources = array_unique( $this->sources );
+		
+		$buffer = "";
+		
+		// lets get the content of each file an apply the file filters on it
+		foreach( $this->sources as $file ) 
+		{
+			if ( !$content = file_get_contents( $file ) )
+			{
+				throw new Packtacular_Exception( "Packtacular - cannot read source file: ".$file );
+			}
+			
+			if ( isset( static::$filters[$this->type][1] ) && is_array( static::$filters[$this->type][1] ) )
+			{
+				foreach( static::$filters[$this->type][1] as $filter ) 
+				{
+					$content = call_user_func( $filter, $content, $file );
+				}
+			}
+			
+			// in case we get an false as response just append the content if we 
+			// recive an string after applying the filters.
+			if ( is_string( $content ) )
+			{
+				$buffer .= $content."\n";
+			}
+		}
+		
+		// apply the pack filters to the buffer
+		if ( isset( static::$filters[$this->type][0] ) && is_array( static::$filters[$this->type][0] ) )
+		{
+			foreach( static::$filters[$this->type][0] as $filter ) 
+			{
+				$buffer = call_user_func( $filter, $buffer );
+			}
+		}
+		
+		// create the missing direcotries
+		if ( !is_dir( dirname( $target ) ) ) 
+		{
+			if ( !mkdir( dirname( $target ), 0755, true ) ) 
+			{
+				throw new Packtacular_Exception( "Packtacular - could not create directory: ".dirname( $target ) );
+			}
+		}
+		
+		return file_put_contents( $target, $buffer );
+	}
+	
+	/**
+	 * Check if the path starts with an slash
+	 *
+	 * @param string			$path
+	 * @return bool
+	 */
+	protected function is_absolute_path( $path )
+	{
+		return substr( $path, 0, 1 ) === '/';
+	}
+	
+	/** 
+	 * Reset the last changed timestamp
+	 *
+	 * @return void
+	 */
+	protected function reset_last_change()
+	{
+		$this->last_change = null;
+	}
+	
+	/**
+	 * The last modified timestamp of the sources
+	 *
 	 * @return int
 	 */
-	protected static function last_change( $files ) {
-		foreach( $files as $key => $file ) {
+	protected function last_change() 
+	{
+		if ( !is_null( $this->last_change ) )
+		{
+			return $this->last_change;
+		}
+		
+		foreach( $this->sources as $key => $file ) 
+		{
 			$files[$key] = filemtime( $file );
 		}
 
 		sort( $files );  $files = array_reverse( $files );
 
-		return $files[key($files)];
-	}
-
-	/**
-	 * Write cache apply filters
-	 * 
-	 * @param array		$files
-	 * @param string 	$target
-	 * @param string	$type
-	 * @return bool
-	 */
-	protected static function write_cache( $files, $target, $type ) {
-
-		$content = "";
-
-		foreach( $files as $file ) {
-			$content .= file_get_contents( $file );
-		}
-
-		foreach( static::$filters[$type] as $filter ) {
-			$content = call_user_func_array( $filter, array( $content ) );
-		}
-
-		return file_put_contents( $target, $content );
+		return $this->last_change = $files[key($files)];
 	}
 }
