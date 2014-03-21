@@ -3,7 +3,7 @@
 	"type": "library",
 	"description": "Packtacular is a simple and fast asset packer and compressor.",
 	"version": "2.0.0",
-	"keywords": [ "asset", "packer", "cache" ],
+	"keywords": [ "asset", "packer", "cache", "packtacular" ],
 	"homepage": "https://github.com/mario-deluna/packtacular",
 	"license": "MIT",
 	"authors": [

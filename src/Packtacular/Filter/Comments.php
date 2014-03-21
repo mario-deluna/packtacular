@@ -40,6 +40,6 @@ class Packtacular_Filter_Comments implements Packtacular_Filter_Interface
 	 */
 	public function filter( $buffer, $file_name = null )
 	{
-		return "\n/* ".$file_name." */\n".$buffer;
+		return "/* ".$file_name." */\n".$buffer;
 	}
 }

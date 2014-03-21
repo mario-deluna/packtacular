@@ -53,7 +53,7 @@ class Packtacular
 	 * Set the active public storage path
 	 *
 	 * Example:
-	 *     Packtacular::storage( $_SERVER['DOCUMENT_ROOT'].'/assets/' );
+	 *     Packtacular::storage( $_SERVER['DOCUMENT_ROOT'] );
 	 *
 	 * @param string		$storage		This should be an absoulute path to your public directory
 	 * @return void
@@ -66,7 +66,23 @@ class Packtacular
 	/**
 	 * So let's get the party startet with the magic method
 	 *
-	 * 
+	 * Packtacular::<filetype>( <dir>|<files_array>, <target_file> );
+	 *
+	 * Source:
+	 * I hope this is not to confusing. If you set a folder as source Packtacular is going to
+	 * search in that directory for all files matching the given type. Alternatively	you can
+	 * pass an array of files.
+	 *
+	 * Target:
+	 * Define where the cache file should be created. You can simply pass a file path. To bypass
+	 * the problem that the browser might cache the files on its own, you can add a timestamp
+	 * to the path using the :time parameter.
+	 *
+	 * Example:
+	 *     Packtacular::css( 'css/', 'cache/stylesheet_:time.css' );
+	 *   
+	 * This would return something like:
+	 *     /cache/stylesheet_1395407386.css
 	 *
 	 * @param string 	$type
 	 * @param array		$arguments
@@ -215,6 +231,12 @@ class Packtacular
 			$this->build( $target_path );
 		}
 		
+		// make the public target absolute
+		if ( !$this->is_absolute_path( $target ) )
+		{
+			$target = '/'.$target;
+		}
+		
 		return $target;
 	}
 	
@@ -258,6 +280,15 @@ class Packtacular
 				}
 			}
 			
+			// maybe we got some filter that apply to all file types
+			if ( isset( static::$filters['*'][1] ) && is_array( static::$filters['*'][1] ) )
+			{
+				foreach( static::$filters['*'][1] as $filter ) 
+				{
+					$content = call_user_func( $filter, $content, $file );
+				}
+			}
+			
 			// in case we get an false as response just append the content if we 
 			// recive an string after applying the filters.
 			if ( is_string( $content ) )
@@ -270,6 +301,15 @@ class Packtacular
 		if ( isset( static::$filters[$this->type][0] ) && is_array( static::$filters[$this->type][0] ) )
 		{
 			foreach( static::$filters[$this->type][0] as $filter ) 
+			{
+				$buffer = call_user_func( $filter, $buffer );
+			}
+		}
+		
+		// also apply the any type filters to the buffer
+		if ( isset( static::$filters['*'][0] ) && is_array( static::$filters['*'][0] ) )
+		{
+			foreach( static::$filters['*'][0] as $filter ) 
 			{
 				$buffer = call_user_func( $filter, $buffer );
 			}
